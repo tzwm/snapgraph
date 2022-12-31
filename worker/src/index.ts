@@ -24,24 +24,43 @@ export interface Env {
   // MY_BUCKET: R2Bucket;
 }
 
+
+function removeSensitiveText(text: string, keyword: string): string {
+  return text.replaceAll(keyword, "snapgraph");
+}
+
+function decryptPath(pathname: string, private_key: string): boolean | string {
+  const encrypt = new JSEncrypt();
+  encrypt.setPrivateKey(private_key);
+
+  return encrypt.decrypt(pathname);
+}
+
+function mockOkResponse(): Response {
+  return new Response("ok", { status: 200 });
+}
+
 export default {
   async fetch(
     request: Request,
     env: Env,
     _: ExecutionContext
   ): Promise<Response> {
-    const { pathname } = new URL(request.url);
-
-    const encrypt = new JSEncrypt();
-    encrypt.setPrivateKey(env.PRIVATE_KEY);
-    let uncrypted_path = encrypt.decrypt(pathname.replace(/^\//g, ""));
-    let real_path;
-    if (uncrypted_path) {
-      real_path = "/" + uncrypted_path;
-    } else {
-      real_path = pathname;
+    if (request.method != "GET") {
+      return mockOkResponse();
     }
 
-    return fetch(BASE_URL + real_path);
+    const { pathname } = new URL(request.url);
+    const uncrypted_path = decryptPath(pathname.replace(/^\//, ""), env.PRIVATE_KEY);
+
+    if (typeof uncrypted_path == "string") { // decrypt success
+      const response = await fetch(BASE_URL + "/" + uncrypted_path);
+      const insensitive_body = removeSensitiveText(await response.text(), uncrypted_path);
+      return new Response(insensitive_body, {
+        headers: response.headers,
+      });
+    } else {
+      return fetch(request);
+    }
   },
 };
