@@ -1,0 +1,25 @@
+name = "snapgraph"
+main = "src/index.ts"
+compatibility_date = "2022-12-02"
+
+kv_namespaces = [
+  { binding = "read_count", id = "1f75c7f3bcfd4d22a3a616d17a0f8546", preview_id = "f35350b74e324cc0856e2e74114c4bda" }
+]
+
+[vars]
+BURN_AFTER_READ_COUNT = 2
+
+# The necessary secrets are:
+# - PRIVATE_KEY
+# - TELEGRAPH_KEY
+# Run `echo <VALUE> | wrangler secret put <NAME>` for each of these
+
+#echo "-----BEGIN RSA PRIVATE KEY-----
+#MIIBOwIBAAJBAJBTyIX1w15ueBqdjFHFqDS3aNSQtm7h4sCZT731Xa0JpPKs+OLe
+#VxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxZ
+#xB7Ok8ZiG4oFvLRlRwb6DFYwprKBPfk9KMGEXEF+F1xI1yzhWR5rJri3Wj8zXU3V
+#GQIhANY/J7MWzji3nrrXLqf9+SuVSdYuEjAPv13CvbX8D5iPAiEArHRSubRZpApf
+#bZVTmcK3K115zBX0oo9xfI7k7cpbaM0CIHEmYZ0fykICF/6tbqKia1otOhW3tztS
+#1cp68x6NxN7ZAiEAkdG+DWZxEaLvs+I7EV2ysglVLns2Iqp1xGOzMVoU1tUCIQC9
+#Y3sh1U1wJg3jDrIwTDNxTFoywVDQtoFEOD4QJsFvpw==
+#-----END RSA PRIVATE KEY-----" | wrangler secret put PRIVATE_KEY
