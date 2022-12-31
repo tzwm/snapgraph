@@ -14,22 +14,22 @@ const BASE_URL = "https://telegra.ph";
 
 export interface Env {
   PRIVATE_KEY: string;
-	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-	// MY_KV_NAMESPACE: KVNamespace;
-	//
-	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-	// MY_DURABLE_OBJECT: DurableObjectNamespace;
-	//
-	// Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-	// MY_BUCKET: R2Bucket;
+  // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
+  // MY_KV_NAMESPACE: KVNamespace;
+  //
+  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
+  // MY_DURABLE_OBJECT: DurableObjectNamespace;
+  //
+  // Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
+  // MY_BUCKET: R2Bucket;
 }
 
 export default {
-	async fetch(
-		request: Request,
-		env: Env,
-		_: ExecutionContext
-	): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    _: ExecutionContext
+  ): Promise<Response> {
     const { pathname } = new URL(request.url);
 
     const encrypt = new JSEncrypt();
@@ -43,5 +43,5 @@ export default {
     }
 
     return fetch(BASE_URL + real_path);
-	},
+  },
 };
