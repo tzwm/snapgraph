@@ -3,7 +3,7 @@ main = "src/index.ts"
 compatibility_date = "2022-12-02"
 
 kv_namespaces = [
-  { binding = "read_count", id = "1f75c7f3bcfd4d22a3a616d17a0f8546", preview_id = "f35350b74e324cc0856e2e74114c4bda" }
+  { binding = "READ_COUNT_KV", id = "1f75c7f3bcfd4d22a3a616d17a0f8546", preview_id = "f35350b74e324cc0856e2e74114c4bda" }
 ]
 
 [vars]
@@ -11,7 +11,7 @@ BURN_AFTER_READ_COUNT = 2
 
 # The necessary secrets are:
 # - PRIVATE_KEY
-# - TELEGRAPH_KEY
+# - TELEGRAPH_ACCESS_TOKEN
 # Run `echo <VALUE> | wrangler secret put <NAME>` for each of these
 
 #echo "-----BEGIN RSA PRIVATE KEY-----

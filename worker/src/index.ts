@@ -10,10 +10,16 @@
 
 import { JSEncrypt } from "jsencrypt";
 
-const BASE_URL = "https://telegra.ph";
+const BASE_URL = "https://telegra.ph/";
+const BASE_TELE_API_URL = "https://api.telegra.ph/";
 
 export interface Env {
   PRIVATE_KEY: string;
+  TELEGRAPH_ACCESS_TOKEN: string;
+
+  BURN_AFTER_READ_COUNT: number;
+  READ_COUNT_KV: KVNamespace;
+
   // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
   // MY_KV_NAMESPACE: KVNamespace;
   //
@@ -40,6 +46,39 @@ function mockOkResponse(): Response {
   return new Response("ok", { status: 200 });
 }
 
+async function removePage(pathname: string, access_token: string): Promise<Response> {
+  const body = {
+    access_token: access_token,
+    title: "Removed by Snapgraph",
+    content: [{"tag": "p", "children": ["GitHub: [Snapgraph](https://github.com/tzwm/snapgraph)"]}],
+    author_name: "Snapgraph",
+    author_url: "https://github.com/tzwm/snapgraph",
+  };
+  const init = {
+    body: JSON.stringify(body),
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+  };
+
+  return fetch(BASE_TELE_API_URL + "editPage/" + pathname, init);
+}
+
+async function updateReadCount(pathname: string, kv: KVNamespace): Promise<number> {
+  const value = await kv.get(pathname);
+  let count;
+  if (value === null) {
+    count = 1;
+  } else {
+    count = parseInt(value) + 1;
+  }
+
+  kv.put(pathname, count.toString());
+
+  return count;
+}
+
 export default {
   async fetch(
     request: Request,
@@ -53,14 +92,21 @@ export default {
     const { pathname } = new URL(request.url);
     const uncrypted_path = decryptPath(pathname.replace(/^\//, ""), env.PRIVATE_KEY);
 
-    if (typeof uncrypted_path == "string") { // decrypt success
-      const response = await fetch(BASE_URL + "/" + uncrypted_path);
-      const insensitive_body = removeSensitiveText(await response.text(), uncrypted_path);
-      return new Response(insensitive_body, {
-        headers: response.headers,
-      });
-    } else {
-      return fetch(request);
+    // decrypt failed
+    if (typeof uncrypted_path != "string") {
+      return fetch(BASE_URL + pathname);
     }
+
+    const readCount = await updateReadCount(pathname, env.READ_COUNT_KV);
+    if (readCount >= env.BURN_AFTER_READ_COUNT) {
+      removePage(uncrypted_path, env.TELEGRAPH_ACCESS_TOKEN);
+    }
+
+    const response = await fetch(BASE_URL + uncrypted_path);
+    const insensitive_body = removeSensitiveText(await response.text(), uncrypted_path);
+
+    return new Response(insensitive_body, {
+      headers: response.headers,
+    });
   },
 };
